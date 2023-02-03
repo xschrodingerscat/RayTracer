@@ -26,10 +26,10 @@ TEST(RayTracer, OneSurfaceAndZeroPointsPath)
 	Ray ray {origin, dir};
 
 	// construct Surface
-	shared_ptr<Relector> reflector;
+	Material part;
 	Polygon poly{{{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}}};
 	Vector normal{0, 1, 0};
-	auto surface = std::make_shared<Surface>(poly, normal, reflector.get());
+	auto surface = std::make_shared<Surface>(poly, normal, part);
 
 	//
 	HitableSet hit_set;
@@ -48,10 +48,10 @@ TEST(RayTracer, OneSurfaceAndOnePointPath)
 	Ray ray {origin, dir};
 
 	// construct Surface
-	shared_ptr<Relector> reflector;
+	Material part;
 	Polygon poly{{{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}}};
 	Vector normal{0, 1, 0};
-	auto surface = std::make_shared<Surface>(poly, normal, reflector.get());
+	auto surface = std::make_shared<Surface>(poly, normal, part);
 
 	HitableSet hit_set;
 	hit_set.Push(surface);

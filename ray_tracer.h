@@ -20,7 +20,10 @@ using Vector = xmath::Vector3D<ValueType>;
 using Point = xmath::Point3D<ValueType>;
 
 using namespace xgeo;
+
 using xmath::dot;
+using std::shared_ptr;
+using std::make_shared;
 
 class Ray {
 public:
@@ -66,13 +69,34 @@ public:
 	virtual bool Hit(const Ray &ray, ValueType t_min, ValueType t_max, HitRecord &ret) const = 0;
 };
 
-class Material {
-public:
-	virtual bool Scatter(const Ray &in, const HitRecord &rec, Ray &scattered) const = 0;
+struct Material {
+	ValueType shear_speed = ValueType{};
+	ValueType compr_speed = ValueType{};
+	ValueType rho = ValueType{};
 };
 
-using std::shared_ptr;
-using std::make_shared;
+class ScatterBehaviour {
+public:
+	virtual bool Scatter(const Ray &ray, const HitRecord &rec, const Ray &scattered) = 0;
+};
+
+class Reflector : public ScatterBehaviour {
+public:
+	bool Scatter(const Ray &ray, const HitRecord &rec, const Ray &scattered) override;
+
+private:
+	Material material_;
+};
+
+class Refractor : public ScatterBehaviour {
+public:
+	bool Scatter(const Ray &ray, const HitRecord &rec, const Ray &scattered) override;
+
+private:
+	Material lhs_material_;
+	Material rhs_material_;
+};
+
 
 // entity list
 class HitableSet : public Hitable {
@@ -82,7 +106,6 @@ public:
 	void Push(const shared_ptr<Hitable> &obj) { objects_.push_back(obj); }
 
 	void Clear() { objects_.clear(); }
-
 	bool Hit(const Ray &ray, ValueType t_min, ValueType t_max, HitRecord &rec) const override;
 
 private:
@@ -92,39 +115,17 @@ private:
 // Flat surface
 class Surface : public Hitable {
 public:
-	Surface(Polygon poly, Vector normal, const Material *material)
+	Surface(Polygon poly, Vector normal, const Material material)
 		: poly_(std::move(poly)), normal_(normal), material_(material) {}
 	bool Hit(const Ray &ray, ValueType t_min, ValueType t_max, HitRecord &ret) const override;
 
 private:
 	Polygon poly_;
 	Vector normal_;
-	const Material *material_ = nullptr;
+	Material material_;
 };
 
-// closed surface and among them
-class Polyhedron : public Hitable {
-public:
-	explicit Polyhedron(std::vector<Surface> polys) : polys_(std::move(polys)) {}
-	void AddSurface(const Surface &surface) { polys_.push_back(surface); }
-	bool Hit(const Ray &ray, ValueType t_min, ValueType t_max, HitRecord &ret) const override;
-
-private:
-	std::vector<Surface> polys_;
-};
-
-class Relector : public Material {
-public:
-	Relector() = default;
-	bool Scatter(const Ray &in, const HitRecord &rec, Ray &scattered) const override;
-};
-
-class Refractor : public Material {
-public:
-	bool Scatter(const Ray &in, const HitRecord &rec, Ray &scattered) const override;
-
-};
-
+// Interface
 Route RayTrace(const Ray &ray, const HitableSet &hit_set, int n = 1);
 
 }

@@ -34,7 +34,7 @@ bool Surface::Hit(const Ray &ray, const ValueType t_min, const ValueType t_max, 
 	auto p0 = supports.at(0);
 	auto r0 = ray.origin();
 
-	Plane plane {supports, normal_};
+	Plane plane{supports, normal_};
 
 	if (IsInside(r0, plane)) return false;
 
@@ -46,7 +46,9 @@ bool Surface::Hit(const Ray &ray, const ValueType t_min, const ValueType t_max, 
 
 	auto target = r0 + t * n2;
 
-	if ((r0 - target).length() < t_min) return false;
+	auto segment_len = (r0 - target).length();
+	if (segment_len < t_min || segment_len > t_max)
+		return false;
 
 	rec.normal = normal_;
 	rec.position = target;
@@ -56,30 +58,10 @@ bool Surface::Hit(const Ray &ray, const ValueType t_min, const ValueType t_max, 
 	return true;
 }
 
-bool Polyhedron::Hit(const Ray &ray, const ValueType t_min, const ValueType t_max, HitRecord &ret) const
-{
-	// TODO: implement it
-	return false;
-}
-
-bool Relector::Scatter(const Ray &in, const HitRecord &rec, Ray &scattered) const
-{
-	Vector reflected = reflect(unit_vector(in.direction()), rec.normal);
-	scattered = Ray(rec.position, reflected);
-	return dot(scattered.direction(), rec.normal) > 0;
-}
-
-bool Refractor::Scatter(const Ray &in, const HitRecord &rec, Ray &scattered) const
-{
-	// TODO: implement it
-	return false;
-}
-
 std::vector<Point> Route::GetPath()
 {
 	std::vector<Point> path;
-	for (const auto rec: records_)
-	{
+	for (const auto rec : records_) {
 		auto p = rec.position;
 		path.push_back(p);
 	}
@@ -96,8 +78,7 @@ Route RayTrace(const Ray &ray, const HitableSet &hit_set, int n)
 	route.Push(start_rec);
 
 	Ray r_in = ray;
-	for (int i = 0; i < n; ++ i)
-	{
+	for (int i = 0; i < n; ++i) {
 		HitRecord rec;
 		if (!hit_set.Hit(r_in, epsilon12, infinity, rec))
 			break;
@@ -108,6 +89,17 @@ Route RayTrace(const Ray &ray, const HitableSet &hit_set, int n)
 
 	return route;
 }
+
+bool Reflector::Scatter(const Ray &ray, const HitRecord &rec, const Ray &scattered)
+{
+	return false;
+}
+
+bool Refractor::Scatter(const Ray &ray, const HitRecord &rec, const Ray &scattered)
+{
+	return false;
+}
+
 }
 
 
