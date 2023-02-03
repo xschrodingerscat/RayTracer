@@ -30,7 +30,6 @@ bool HitableSet::Hit(const Ray &ray, const ValueType t_min, const ValueType t_ma
 
 bool Surface::Hit(const Ray &ray, const ValueType t_min, const ValueType t_max, HitRecord &rec) const
 {
-	// TODO: implement it
 	auto supports = poly_.GetSupports();
 	auto p0 = supports.at(0);
 	auto r0 = ray.origin();
