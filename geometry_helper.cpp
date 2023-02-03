@@ -48,7 +48,9 @@ bool IsCoplanar(const std::vector<Point> &points)
 bool IsInside(const Point& p, const Plane& plane)
 {
 	// TODO: implement it
-	return true;
+
+	auto p0 = plane.support_p0();
+	return fabs(xmath::dot(p0 - p, plane.normal())) <= xmath::epsilon16;
 }
 
 #if 0

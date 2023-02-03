@@ -12,10 +12,10 @@ TEST(RayTracer, NonePath)
 {
 	Ray ray;
 	HitableSet hit_set;
-	auto route = RayTrace(ray, hit_set);
+	auto route = RayTrace(ray, hit_set, 1);
 	auto path = route.GetPath();
 
-	EXPECT_THAT(path.size(), 0);
+	EXPECT_THAT(path.size(), 1);
 }
 
 TEST(RayTracer, OneSurfaceAndZeroPointsPath)
@@ -31,17 +31,19 @@ TEST(RayTracer, OneSurfaceAndZeroPointsPath)
 	Vector normal{0, 1, 0};
 	auto surface = std::make_shared<Surface>(poly, normal, reflector.get());
 
+	//
 	HitableSet hit_set;
 	hit_set.Push(surface);
 
-	auto route = RayTrace(ray, hit_set);
+	auto route = RayTrace(ray, hit_set, 1);
 	auto path = route.GetPath();
-	EXPECT_THAT(path.size(), 0);
+	EXPECT_THAT(path.size(), 1);
 }
+
 
 TEST(RayTracer, OneSurfaceAndOnePointPath)
 {
-	Point origin {0, 0, 0};
+	Point origin {0, -1, 0};
 	Vector dir {0, 1, 0};
 	Ray ray {origin, dir};
 
@@ -54,9 +56,9 @@ TEST(RayTracer, OneSurfaceAndOnePointPath)
 	HitableSet hit_set;
 	hit_set.Push(surface);
 
-	auto route = RayTrace(ray, hit_set);
+	auto route = RayTrace(ray, hit_set, 1);
 	auto path = route.GetPath();
-	EXPECT_THAT(path.size(), 0);
+	EXPECT_THAT(path.size(), 2);
 }
 
 

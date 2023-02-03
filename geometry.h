@@ -36,34 +36,16 @@ private:
 	Point e2_ = {};
 };
 
-
-class Polygon2D { public: };
-
-// Simple Closed and Coplanar
-class Polygon {
-public:
-	Polygon() = default;
-	explicit Polygon(std::vector<Point>  points): points_(std::move(points)) {}
-
-	int NumberOfPoints() const { return static_cast<int>(points_.size()); }
-	const std::vector<Point> &GetPoints() const { return points_; }
-
-	static std::optional<Polygon> Create(const std::vector<Point> &points);
-
-	bool IsValid() const;
-
-
-private:
-	bool isSimpleClosed() const;
-	bool isCoplanar() const;
-
-	std::vector<Point> points_ = {};
-};
-
-
 class Plane {
 public:
-	Plane(const Point &p0, const Point &p1, const Point p2)
+	Plane(const std::vector<Point> &supp, const Vector &normal) : normal_(normal)
+	{
+		support_[0] = supp.at(0);
+		support_[1] = supp.at(1);
+		support_[2] = supp.at(2);
+	}
+
+	Plane(const Point &p0, const Point &p1, const Point p2, const Vector &normal) : normal_(normal)
 	{
 		support_[0] = p0;
 		support_[1] = p1;
@@ -72,13 +54,39 @@ public:
 
 	bool IsValid() const;
 
-	Point support_p0() { return support_[0];}
-	Point support_p1() { return support_[1];}
-	Point support_p2() { return support_[2];}
+	Point support_p0() const { return support_[0]; }
+	Point support_p1() const { return support_[1]; }
+	Point support_p2() const { return support_[2]; }
+
+	Vector normal() const { return normal_; }
 
 private:
 	Point support_[3];
-	Vector normal_;
+	Vector normal_ = {};
+};
+
+class Polygon2D { public: };
+
+// Simple Closed and Coplanar
+class Polygon {
+public:
+	Polygon() = default;
+	explicit Polygon(std::vector<Point> points) : points_(std::move(points)) {}
+
+	static std::optional<Polygon> Create(const std::vector<Point> &points);
+
+	int NumberOfPoints() const { return static_cast<int>(points_.size()); }
+	const std::vector<Point> &GetPoints() const { return points_; }
+
+	bool IsValid() const;
+
+	std::vector<Point> GetSupports() const;
+
+private:
+	bool isSimpleClosed() const;
+	bool isCoplanar() const;
+
+	std::vector<Point> points_ = {};
 };
 
 }

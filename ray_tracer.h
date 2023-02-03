@@ -125,7 +125,7 @@ public:
 
 };
 
-Route RayTrace(const Ray &ray, const HitableSet &hit_set);
+Route RayTrace(const Ray &ray, const HitableSet &hit_set, int n = 1);
 
 }
 
