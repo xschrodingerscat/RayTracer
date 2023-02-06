@@ -47,8 +47,6 @@ bool IsCoplanar(const std::vector<Point> &points)
 
 bool IsInside(const Point& p, const Plane& plane)
 {
-	// TODO: implement it
-
 	auto p0 = plane.support_p0();
 	return fabs(xmath::dot(p0 - p, plane.normal())) <= xmath::epsilon16;
 }
@@ -104,7 +102,13 @@ int IsInside(const Point&p, const Polygon& poly)
 Polygon2D Convert(const Polygon &poly, const Point& origin, const Vector& unit_x, const Vector& unit_y)
 {
 	// TODO: implement it
-	return Polygon2D();
+	return Polygon2D{};
+}
+
+Point2D Covert(const Point &poly, const Point& origin, const Vector& base_vx, const Vector& base_vy)
+{
+	// TODO :implement it
+	return Point2D{};
 }
 
 }

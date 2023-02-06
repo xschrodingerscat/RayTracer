@@ -27,6 +27,7 @@ inline double degrees_to_radians(double degrees) {
 
 inline int sgn(ValueType a) { return a < -epsilon ? -1 : a > epsilon;}
 inline int cmp(ValueType a, ValueType b) { return sgn(a - b); }
+inline bool near(ValueType a, ValueType b, ValueType threshold) { return fabs(a - b) <= threshold; }
 
 
 }

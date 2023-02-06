@@ -39,18 +39,24 @@ private:
 	Vector dir_;
 };
 
+struct Material;
+using DirectedMaterial = std::pair<Vector, Material>;
+class ScatterBehaviour;
+
 struct HitRecord {
 	Vector position = {};
 	Vector normal = {};
 	ValueType t = ValueType{};
-	bool front_face = false;
-
-	void SetFaceNormal(const Ray &r, const Vector &outward_normal)
-	{
-		front_face = xmath::dot(r.direction(), outward_normal) < 0;
-		normal = front_face ? outward_normal : -outward_normal;
-	}
+	std::shared_ptr<ScatterBehaviour> scattered_ = nullptr;
 };
+
+using PathType = std::vector<Point>;
+
+inline std::ostream & operator << (std::ostream &out, const PathType &path)
+{
+	for (const auto &p: path) { out << "{" << p << "}" << "----"; }
+	return out;
+}
 
 class Route {
 public:
@@ -58,16 +64,12 @@ public:
 	explicit Route(std::vector<HitRecord> records) : records_(std::move(records)) {}
 	void Push(const HitRecord &rec) { records_.push_back(rec); }
 
-	std::vector<Point> GetPath();
+	PathType GetPath();
 
 private:
 	std::vector<HitRecord> records_;
 };
 
-class Hitable {
-public:
-	virtual bool Hit(const Ray &ray, ValueType t_min, ValueType t_max, HitRecord &ret) const = 0;
-};
 
 struct Material {
 	ValueType shear_speed = ValueType{};
@@ -77,26 +79,40 @@ struct Material {
 
 class ScatterBehaviour {
 public:
-	virtual bool Scatter(const Ray &ray, const HitRecord &rec, const Ray &scattered) = 0;
+	virtual bool Scatter(const Ray &ray, const HitRecord &rec, Ray &scattered) const = 0;
 };
 
 class Reflector : public ScatterBehaviour {
 public:
-	bool Scatter(const Ray &ray, const HitRecord &rec, const Ray &scattered) override;
+	explicit Reflector(DirectedMaterial  material): material1_(std::move(material)) {
+		material2_.first  = -material1_.first;
+		material2_.second = material1_.second;
+	}
+	bool Scatter(const Ray &ray, const HitRecord &rec, Ray &scattered) const override;
 
 private:
-	Material material_;
+	DirectedMaterial material1_;
+	DirectedMaterial material2_;
 };
 
 class Refractor : public ScatterBehaviour {
 public:
-	bool Scatter(const Ray &ray, const HitRecord &rec, const Ray &scattered) override;
+	Refractor(DirectedMaterial  material1, DirectedMaterial  material2)
+	: material1_(std::move(material1)), material2_(std::move(material2)) {}
+
+	bool Scatter(const Ray &ray, const HitRecord &rec, Ray &scattered) const override;
 
 private:
-	Material lhs_material_;
-	Material rhs_material_;
+	DirectedMaterial material1_;
+	DirectedMaterial material2_;
 };
 
+
+class Hitable {
+public:
+	virtual bool Hit(const Ray &ray, ValueType t_min, ValueType t_max, HitRecord &ret) const = 0;
+	virtual bool Deflect(const Ray& ray, const HitRecord& rec, Ray& scattered) const = 0;
+};
 
 // entity list
 class HitableSet : public Hitable {
@@ -106,7 +122,10 @@ public:
 	void Push(const shared_ptr<Hitable> &obj) { objects_.push_back(obj); }
 
 	void Clear() { objects_.clear(); }
+
 	bool Hit(const Ray &ray, ValueType t_min, ValueType t_max, HitRecord &rec) const override;
+
+	bool Deflect(const Ray& ray, const HitRecord& rec, Ray& scattered) const override;
 
 private:
 	std::vector<shared_ptr<Hitable>> objects_;
@@ -115,14 +134,19 @@ private:
 // Flat surface
 class Surface : public Hitable {
 public:
-	Surface(Polygon poly, Vector normal, const Material material)
-		: poly_(std::move(poly)), normal_(normal), material_(material) {}
+	Surface(Polygon poly, Vector normal, std::shared_ptr<ScatterBehaviour> scattered)
+		: poly_(std::move(poly)), normal_(normal), scattered_(std::move(scattered)) {}
+
 	bool Hit(const Ray &ray, ValueType t_min, ValueType t_max, HitRecord &ret) const override;
+
+	bool Deflect(const Ray& ray, const HitRecord& rec, Ray& scattered) const override {
+		return scattered_->Scatter(ray, rec, scattered);
+	};
 
 private:
 	Polygon poly_;
 	Vector normal_;
-	Material material_;
+	std::shared_ptr<ScatterBehaviour> scattered_;
 };
 
 // Interface

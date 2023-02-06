@@ -17,7 +17,7 @@ bool Polygon::isCoplanar() const
 	return xgeo_helper::IsCoplanar(points_);
 }
 
-bool Polygon::isSimpleClosed() const
+bool Polygon::isSimple() const
 {
 
 	// TODO: implement it
@@ -26,7 +26,7 @@ bool Polygon::isSimpleClosed() const
 
 bool Polygon::IsValid() const
 {
-	return isCoplanar() && isSimpleClosed();
+	return isCoplanar() && isSimple();
 }
 
 std::optional<Polygon> Polygon::Create(const std::vector<Point> &points)

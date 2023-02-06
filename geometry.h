@@ -83,7 +83,7 @@ public:
 	std::vector<Point> GetSupports() const;
 
 private:
-	bool isSimpleClosed() const;
+	bool isSimple() const;
 	bool isCoplanar() const;
 
 	std::vector<Point> points_ = {};
