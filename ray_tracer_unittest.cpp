@@ -71,7 +71,7 @@ TEST(RayTracer, TwoSurfaceAndTwoPath)
 	DirectedMaterial dmaterial{normal, material};
 	auto piece = std::make_shared<Reflector>(dmaterial);
 
-	Polygon poly{{{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}}};
+	Polygon poly{{{0, 0, 0}, {4, 0, 0}, {4, 0, 4}, {0, 0, 4}}};
 	auto surface1 = std::make_shared<Surface>(poly, normal, piece);
 
 	Vector normal2{0, 1, 0};
@@ -79,7 +79,7 @@ TEST(RayTracer, TwoSurfaceAndTwoPath)
 	DirectedMaterial dmaterial2{normal2, material2};
 	auto piece2 = std::make_shared<Reflector>(dmaterial2);
 
-	Polygon poly2{{{0, -2, 0}, {1, -2, 0}, {1, -2, 1}, {0, -2, 1}}};
+	Polygon poly2{{{0, -2, 0}, {2, -2, 0}, {2, -2, 2}, {0, -2, 2}}};
 	auto surface2 = std::make_shared<Surface>(poly2, normal2, piece2);
 
 	HitableSet hit_set;
@@ -107,7 +107,7 @@ TEST(RayTracer, OneRefractiveAndOneReflectedSurfaceAndThreePath)
 	DirectedMaterial dmaterial2{normal2, material2};
 	auto piece = std::make_shared<Refractor>(dmaterial1, dmaterial2);
 
-	Polygon poly{{{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}}};
+	Polygon poly{{{0, 0, 0}, {3.5, 0, 0}, {3.5, 0, 3.5}, {0, 0, 3.5}}};
 	Vector normal = normal1;
 	auto surface1 = std::make_shared<Surface>(poly, normal, piece);
 
@@ -117,7 +117,7 @@ TEST(RayTracer, OneRefractiveAndOneReflectedSurfaceAndThreePath)
 
 	auto piece2 = std::make_shared<Reflector>(dmaterial3);
 
-	Polygon poly2{{{0, 2, 0}, {1, 2, 0}, {1, 2, 1}, {0, 2, 1}}};
+	Polygon poly2{{{0, 2, 0}, {2.5, 2, 0}, {2.5, 2, 2.5}, {0, 2, 2.5}}};
 	auto surface2 = std::make_shared<Surface>(poly2, normal2, piece2);
 
 	HitableSet hit_set;
@@ -137,6 +137,8 @@ TEST(RayTracer, OneRefractiveAndOneReflectedSurfaceAndThreePath)
 			&& xmath::near(a.y(), b.y(), threshold)
 			&& xmath::near(a.z(), b.z(), threshold);
 	};
+
+	ASSERT_THAT(path.size(), 4);
 
 	EXPECT_TRUE(IsPointNear(path.at(0), {0, -1, 0}));
 	EXPECT_TRUE(IsPointNear(path.at(1), {1, 0, 0}));

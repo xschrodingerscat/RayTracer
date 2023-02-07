@@ -39,6 +39,7 @@ std::optional<Polygon> Polygon::Create(const std::vector<Point> &points)
 
 		return std::nullopt;
 }
+
 std::vector<Point> Polygon::GetSupports() const
 {
 	assert(IsValid());

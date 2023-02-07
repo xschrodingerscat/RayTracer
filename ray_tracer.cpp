@@ -40,13 +40,9 @@ bool Surface::Hit(const Ray &ray, const ValueType t_min, const ValueType t_max, 
 	auto p0 = supports.at(0);
 	auto r0 = ray.origin();
 
-	// outward normal
+	// unit normal
 	auto n1 = unit_vector(normal_);
 	auto n2 = unit_vector(ray.direction());
-
-	Plane plane{supports, n1};
-	if (IsInside(r0, plane)) return false;
-
 
 	auto t = dot((p0 - r0), n1) / dot(n1, n2);
 
@@ -57,17 +53,18 @@ bool Surface::Hit(const Ray &ray, const ValueType t_min, const ValueType t_max, 
 	auto intersection = r0 + t * n2;
 
 	auto segment_len = (r0 - intersection).length();
+	// limit the length of the ray
 	if (!(t_min < segment_len && segment_len < t_max))
 		return false;
 
 	// the intersection must be in the poly
+	if (!IsInside(intersection, poly_)) return false;
 
 	rec.position = intersection;
 	rec.t = t;
 	rec.normal = dot(n1, n2) <=0 ? normal_ : -normal_;
 	rec.scattered_ = scattered_;
 
-	assert(IsInside(intersection, plane));
 	return true;
 }
 

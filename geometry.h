@@ -36,6 +36,19 @@ private:
 	Point e2_ = {};
 };
 
+class Segment2D {
+public:
+	Segment2D() = default;
+	Segment2D(const Point2D& e1, const Point2D& e2) : e1_(e1), e2_(e2) {}
+
+	Point2D endpoint1() const { return e1_; }
+	Point2D endpoint2() const { return e2_; }
+
+private:
+	Point2D e1_ = {};
+	Point2D e2_ = {};
+};
+
 class Plane {
 public:
 	Plane(const std::vector<Point> &supp, const Vector &normal) : normal_(normal)
@@ -65,7 +78,15 @@ private:
 	Vector normal_ = {};
 };
 
-class Polygon2D { public: };
+class Polygon2D {
+public:
+	explicit Polygon2D(std::vector<Point2D> points) : points_(std::move(points)) {}
+	int NumberOfPoints() const { return static_cast<int>(points_.size()); }
+	const std::vector<Point2D> &GetPoints() const { return points_; }
+
+private:
+	std::vector<Point2D> points_;
+};
 
 // Simple Closed and Coplanar
 class Polygon {

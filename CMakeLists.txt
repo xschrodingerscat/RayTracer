@@ -28,5 +28,5 @@ add_executable(RayTracer
         ray_tracer.h
         ray_tracer.cpp
         ray_tracer_unittest.cpp
-        )
+        geometry_helper_unittest.cpp)
 target_link_libraries(RayTracer GTest::gmock_main)
